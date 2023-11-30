@@ -7,20 +7,14 @@ import {filtersFetching, filtersFetched, filtersFetchingError, activeFilterChang
 import  Spinner  from '../spinner/Spinner';
 
 
-// Задача для этого компонента:
-// Фильтры должны формироваться на основании загруженных данных
-// Фильтры должны отображать только нужных героев при выборе
-// Активный фильтр имеет класс active
-// Изменять json-файл для удобства МОЖНО!
-// Представьте, что вы попросили бэкенд-разработчика об этом
+
 
 const HeroesFilters = () => {
 
-    const {filters, filtersLoadingStatus, activeFilter} = useSelector(state => state);
+    const {filters, filtersLoadingStatus, activeFilter} = useSelector(state => state.filters);
     const dispatch = useDispatch();
     const {request} = useHttp();
 
-    // запрос на сервер для получения фильтров и последовательной смены состояния 
     useEffect(()=>{
         dispatch(filtersFetching());
         request('http://localhost:3001/filters')
@@ -39,9 +33,7 @@ const HeroesFilters = () => {
             return <h5 className="text-center mt-5">Фильтры не найдены</h5>
         }
 
-        // данные в json файле расширяем классами и текстом 
         return arr.map(({name, className, label}) =>{
-            // используем библиотеку classnames и формируем классы динамически
             const btnClass = classNames('btn', className, {
                 'active' : name === activeFilter
             });
