@@ -1,4 +1,5 @@
 import { createStore, combineReducers, compose, applyMiddleware } from 'redux';
+import {thunk} from 'redux-thunk';
 import heroes from '../reducers/heroes';
 import filters from '../reducers/filters';
 
@@ -41,7 +42,7 @@ const enhancer = (createStore)=>(...args)=>{
 // нас интересует оригинальная команда createStore  и в нее уже встроен механизм, что ечли мы сюда вторым аргументом передаем какую то функцию, то она является усилителем нашего store, то есть эта функция будет там запущена и она подменит оригинальный dispatch  и подставит тот функционал, который мы врусную прописали 
 const store = createStore(
                     combineReducers({heroes, filters}), 
-                    compose(applyMiddleware(stringMiddleware), window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__())
+                    compose(applyMiddleware(thunk, stringMiddleware), window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__())
                     
                     );
 
