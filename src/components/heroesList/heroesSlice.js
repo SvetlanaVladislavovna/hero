@@ -1,26 +1,26 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import {useHttp} from '../../hooks/http.hook';
+
 
 const initialState = {
     heroes: [],
     heroesLoadingStatus: "idle"
 };
 
+export const fetchHeroes = createAsyncThunk(
+    'heroes/fetchHeroes',
+    ()=>{
+        // т е когда запускается эта функция она запускаетв нутри себя наш собственный хук который работает с сервером  - отдает нам функцию по работе с сервером для того чтобы мы могли делать запросы и в след строке мы делаем запрос на сервер по указанному адресу
+        const {request} = useHttp();
+        return request("http://localhost:3001/heroes");
+    }
+);
+
 const heroesSlice = createSlice({
     name: 'heroes',
     initialState,
-    // объект наших reducers - здесь мы должны написать какие события будут происходить внутри наших reducers, то есть у нас будет какое-то св-во внутри которого будет лежать функция принимающая аргументами state и action - и будет что то делать с store
-    // самое главное здесь пользоваться правилом названия этих action (здесь будут лежать action creators)
+  
     reducers: {
-        // для того чтобы создавать какие то действия внутри reducers нам необходимо сначаала прописать пространство имен  и дальше действие которое будет выаолняться - его тип. дальше у нас будет функция которая изменяет как-то наш state
-        // heroesFetching - формируется action creator, далее формируется то действие которое работает напрямую сo state
-        heroesFetching: state => {state.heroesLoadingStatus = 'loading'},
-        heroesFetched: (state, action) =>{
-            state.heroesLoadingStatus = 'idle';
-            state.heroes = action.payload;
-          },
-        heroesFetchingError: state =>{
-                    state.heroesLoadingStatus = 'error';
-                },
         heroCreated: (state, action) =>{
                     state.heroes.push(action.payload);
                 },
@@ -28,6 +28,19 @@ const heroesSlice = createSlice({
                     state.heroes = state.heroes.filter((item) => item.id !== action.payload);
                 }
 
+    },
+    extraReducers: (builder)=>{
+        builder 
+            .addCase(fetchHeroes.pending, state => {state.heroesLoadingStatus = 'loading'})
+            .addCase(fetchHeroes.fulfilled, (state, action) =>{
+                state.heroesLoadingStatus = 'idle';
+                state.heroes = action.payload; 
+            })
+            .addCase(fetchHeroes.rejected, state =>{
+                state.heroesLoadingStatus = 'error';
+            })
+            .addDefaultCase(() => {})
+    // таким образом мы обрабатываем результаты работы нашего action creator а именно трех вариантов которые могут у него возникнуть 
     }
 });
 
